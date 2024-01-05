@@ -62,7 +62,7 @@ public enum Condition: Codable, Equatable {
      - Parameter ceiling: The top altitude of the obscuration layer, in feet
                           AGL.
      */
-    case indefinite(_ ceiling: UInt)
+    case indefinite(_ ceiling: UInt?, type: CeilingType? = nil)
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -70,23 +70,35 @@ public enum Condition: Codable, Equatable {
             case "CLR": self = .clear
             case "SKC": self = .skyClear
             case "NSC": self = .noSignificantClouds
+            case "CAVOK": self = .cavok
             case "FEW":
-                let arguments = try decodeHeightAndTypeFrom(container: container)
-                self = .few(arguments.0, type: arguments.1)
+                let (height, type) = try decodeHeightAndTypeFrom(container: container)
+                self = .few(height, type: type)
             case "SCT":
-                let arguments = try decodeHeightAndTypeFrom(container: container)
-                self = .scattered(arguments.0, type: arguments.1)
+                let (height, type) = try decodeHeightAndTypeFrom(container: container)
+                self = .scattered(height, type: type)
             case "BKN":
-                let arguments = try decodeHeightAndTypeFrom(container: container)
-                self = .broken(arguments.0, type: arguments.1)
+                let (height, type) = try decodeHeightAndTypeFrom(container: container)
+                self = .broken(height, type: type)
             case "OVC":
-                let arguments = try decodeHeightAndTypeFrom(container: container)
-                self = .overcast(arguments.0, type: arguments.1)
+                let (height, type) = try decodeHeightAndTypeFrom(container: container)
+                self = .overcast(height, type: type)
             case "VV":
-                let height = try container.decode(UInt.self, forKey: .height)
-                self = .indefinite(height)
+                let (height, type) = try decodeHeightAndTypeFrom(container: container)
+                self = .indefinite(height, type: type)
             default:
                 throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown enum value")
+        }
+    }
+    
+    public var type: CeilingType? {
+        switch self {
+        case let .few(_, type), let .scattered(_, type),
+            let .broken(_, type), let .overcast(_, type),
+            let .indefinite(_, type):
+            return type
+        case .clear, .skyClear, .noSignificantClouds, .cavok:
+            return nil
         }
     }
         
@@ -113,9 +125,10 @@ public enum Condition: Codable, Equatable {
             try container.encode("OVC", forKey: .coverage)
             try container.encode(height, forKey: .height)
             try container.encode(type, forKey: .type)
-        case let .indefinite(height):
+        case let .indefinite(height, type):
             try container.encode("VV", forKey: .coverage)
             try container.encode(height, forKey: .height)
+            try container.encode(type, forKey: .type)
         }
     }
     
@@ -127,6 +140,19 @@ public enum Condition: Codable, Equatable {
         
         /// Layer consists of towering cumulus clouds.
         case toweringCumulus = "TCU"
+        
+        /// If the type of clouds cannot be measured.
+        case undefined = "///"
+    }
+    
+    /// The cloud cover for parsing.
+    enum CoverageType: String, Codable, CaseIterable {
+        case few = "FEW"
+        case scattered = "SCT"
+        case broken = "BKN"
+        case overcast = "OVC"
+        case verticalVisibility = "VV"
+        case undefined = "///"
     }
     
     enum CodingKeys: String, CodingKey {
