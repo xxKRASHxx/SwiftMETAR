@@ -247,7 +247,7 @@ public struct TAF: Codable {
              */
             case probability(_ probability: UInt8, period: Period)
             
-            var rawValue: String {
+            public var rawValue: String {
                 switch self {
                 case let .becoming(period):
                     return "BCMG \(period.rawValue)"
