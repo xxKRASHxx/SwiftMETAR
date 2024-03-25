@@ -69,6 +69,7 @@ public struct TAF: Codable {
      - Returns: The aggregate weather at that time, or `nil` if `date` is
                 outside the forecast period.
      */
+    
     public func during(_ date: Date) -> Group? {
         guard covers(date) else { return nil }
         
@@ -87,20 +88,7 @@ public struct TAF: Codable {
                                   remarksString: nil)
         
         for group in groups {
-            switch group.period {
-                case let .from(from):
-                    guard let fromDate = zuluCal.date(from: from) else { continue }
-                    if date < fromDate { continue }
-                case let .range(period):
-                    if !period.contains(date) { continue }
-                case let .probability(_, period):
-                    if !period.contains(date) { continue }
-                case let .temporary(period):
-                    if !period.contains(date) { continue }
-                case let .becoming(period):
-                    if !period.contains(date) { continue }
-            }
-            // if we're still here, this period covers the date in question
+            guard group.period.contains(date: date) else { continue }
             
             switch group.period {
                 case .from(_): // reset all the fields
@@ -219,7 +207,7 @@ public struct TAF: Codable {
         public var remarksString: String?
         
         /// A valid period for a TAF or one of its groups.
-        public enum Period: Codable, Equatable {
+        indirect public enum Period: Codable, Equatable {
             
             /**
              Forecast is valid between two dates.
@@ -257,7 +245,7 @@ public struct TAF: Codable {
                                       forecast.
              - Parameter period: The valid period.
              */
-            case probability(_ probability: UInt8, period: DateComponentsInterval)
+            case probability(_ probability: UInt8, period: Period)
             
             public init(from decoder: Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -276,7 +264,7 @@ public struct TAF: Codable {
                         self = .becoming(period)
                     case "PROB":
                         let probability = try container.decode(UInt8.self, forKey: .probability)
-                        let period = try container.decode(DateComponentsInterval.self, forKey: .period)
+                        let period = try container.decode(Period.self, forKey: .period)
                         self = .probability(probability, period: period)
                     default:
                         throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown enum value")
@@ -328,6 +316,35 @@ public struct TAF: Codable {
             enum CodingKeys: String, CodingKey {
                 case type, probability, from, period
             }
+        }
+    }
+}
+
+extension TAF.Group.Period {
+    func contains(date: Date) -> Bool {
+        switch self {
+        case let .from(components):
+            guard let from = zuluCal.date(from: components), date >= from
+            else { return false }
+            return true
+            
+        case let .range(period) 
+            where period.contains(date):
+            return true
+            
+        case let .probability(_, period):
+            return period.contains(date: date)
+            
+        case let .temporary(period)
+            where period.contains(date):
+            return true
+            
+        case let .becoming(period) 
+            where period.contains(date):
+            return true
+            
+        default:
+            return false
         }
     }
 }

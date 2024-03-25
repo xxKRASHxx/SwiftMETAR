@@ -79,7 +79,7 @@ class TAFSpec: QuickSpec {
                     remarksString: nil),
                 .init(
                     raw: "PROB30 1200/1204 3SM TSRA BKN030CB",
-                    period: .probability(30, period: .init(start: .this(day: 12, hour: 0)!, end: .this(day: 12, hour: 4)!)),
+                    period: .probability(30, period: .range(.init(start: .this(day: 12, hour: 0)!, end: .this(day: 12, hour: 4)!))),
                     wind: nil,
                     visibility: .equal(.statuteMiles(3)),
                     weather: [.init(intensity: .moderate, descriptor: .thunderstorms, phenomena: [.rain])],
@@ -327,7 +327,7 @@ class TAFSpec: QuickSpec {
                         TEMPO 1112/1114 5SM BR
                     FM111500 16015G25KT P6SM SCT040 BKN250
                     FM120000 14012KT P6SM BKN080 OVC150
-                        PROB30 1200/1204 3SM TSRA BKN030CB
+                        PROB30 BECMG 1200/1204 3SM TSRA BKN030CB
                     FM120400 14008KT P6SM SCT040 OVC080
                         TEMPO 1204/1208 3SM TSRA OVC030CB
                 """
@@ -336,7 +336,7 @@ class TAFSpec: QuickSpec {
                 let components = DateComponents.this(day: 12, hour: 2)!
                 let date = zuluCal.date(from: components)!
                 expect(forecast.during(date)).to(equal(
-                    .init(raw: "PROB30 1200/1204 3SM TSRA BKN030CB",
+                    .init(raw: "PROB30 BECMG 1200/1204 3SM TSRA BKN030CB",
                           period: .from(.this(day: 12, hour: 2)!),
                           wind: .direction(140, speed: .knots(12)),
                           visibility: .equal(.statuteMiles(3)),

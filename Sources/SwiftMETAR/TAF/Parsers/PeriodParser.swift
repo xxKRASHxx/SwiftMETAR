@@ -80,13 +80,10 @@ fileprivate func parseProbabilityPeriod(_ parts: inout Array<String.SubSequence>
     guard let probStr = match.captures[0],
           let probability = UInt8(probStr) else { throw Error.invalidPeriod(probStr) }
     
-    guard let range = try parseRangePeriod(&parts, referenceDate: referenceDate) else {
+    guard let period = try parsePeriod(&parts, referenceDate: referenceDate) else {
         throw Error.invalidPeriod(probStr)
     }
     
-    guard case let .range(period) = range else {
-        preconditionFailure("Period enum not of type .range")
-    }
     return .probability(probability, period: period)
 }
 
