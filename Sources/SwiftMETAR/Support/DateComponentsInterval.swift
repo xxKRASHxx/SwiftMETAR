@@ -14,14 +14,7 @@ public struct DateComponentsInterval: Comparable, Hashable, Codable {
     public var duration: TimeInterval { dateInterval.duration }
     
     public var rawValue: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "ddhh"
-        formatter.calendar = zuluCal
-        
-        let startString = formatter.string(from: dateInterval.start)
-        let endString = formatter.string(from: dateInterval.end)
-
-        return "\(startString)/\(endString)"
+        "\(start.tafRepresentation)/\(end.tafRepresentation)"
     }
     
     public init(start: DateComponents, end: DateComponents) {
@@ -73,5 +66,20 @@ public struct DateComponentsInterval: Comparable, Hashable, Codable {
     
     private enum CodingKeys: String, CodingKey {
         case start, end
+    }
+}
+
+private extension DateComponents {
+    var tafRepresentation: String {
+        
+        var (day, hour) = (self.day, self.hour)
+        if hour == 0 {
+            hour = 24
+            day = day?.advanced(by: -1)
+        }
+        
+        let startDayString = day.map { day in String(format: "%02d", day) } ?? "//"
+        let startHourString = hour.map { hour in String(format: "%02d", hour) } ?? "//"
+        return "\(startDayString)\(startHourString)"
     }
 }
