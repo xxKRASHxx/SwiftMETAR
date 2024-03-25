@@ -71,13 +71,6 @@ public struct DateComponentsInterval: Comparable, Hashable, Codable {
 
 private extension DateComponents {
     var tafRepresentation: String {
-        
-        var (day, hour) = (self.day, self.hour)
-        if hour == 0 {
-            hour = 24
-            day = day?.advanced(by: -1)
-        }
-        
         let startDayString = day.map { day in String(format: "%02d", day) } ?? "//"
         let startHourString = hour.map { hour in String(format: "%02d", hour) } ?? "//"
         return "\(startDayString)\(startHourString)"
