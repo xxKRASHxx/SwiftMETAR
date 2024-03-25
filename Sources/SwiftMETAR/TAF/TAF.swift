@@ -247,6 +247,30 @@ public struct TAF: Codable {
              */
             case probability(_ probability: UInt8, period: Period)
             
+            var rawValue: String {
+                switch self {
+                case let .becoming(period):
+                    return "BCMG \(period.rawValue)"
+                case let .from(components):
+                    guard let date = components.date else {
+                        assertionFailure("No date in components: \(components).")
+                        return ""
+                    }
+                    
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "ddhhmm"
+                    formatter.calendar = zuluCal
+                    return formatter.string(from: date)
+                    
+                case let .probability(probability, period: period):
+                    return "PROB \(probability) \(period.rawValue)"
+                case let .range(period):
+                    return period.rawValue
+                case let .temporary(period):
+                    return "TEMPO \(period.rawValue)"
+                }
+            }
+            
             public init(from decoder: Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 switch try container.decode(String.self, forKey: .type) {

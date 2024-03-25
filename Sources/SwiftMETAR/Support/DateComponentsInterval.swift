@@ -13,6 +13,17 @@ public struct DateComponentsInterval: Comparable, Hashable, Codable {
     
     public var duration: TimeInterval { dateInterval.duration }
     
+    public var rawValue: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "ddhh"
+        formatter.calendar = zuluCal
+        
+        let startString = formatter.string(from: dateInterval.start)
+        let endString = formatter.string(from: dateInterval.end)
+
+        return "\(startString)/\(endString)"
+    }
+    
     public init(start: DateComponents, end: DateComponents) {
         self.start = start
         self.end = end
