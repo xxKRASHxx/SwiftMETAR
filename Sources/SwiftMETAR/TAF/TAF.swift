@@ -256,7 +256,7 @@ public struct TAF: Codable {
             public var rawValue: String {
                 switch self {
                 case let .becoming(period):
-                    return "BCMG \(period.rawValue)"
+                    return "BECMG \(period.rawValue)"
                 case let .from(components):
                     return "FM\(components.tafDayHourMinute)"
                     
@@ -281,7 +281,7 @@ public struct TAF: Codable {
                     case "TEMPO":
                         let period = try container.decode(DateComponentsInterval.self, forKey: .period)
                         self = .temporary(period)
-                    case "BCMG":
+                    case "BECMG":
                         let period = try container.decode(DateComponentsInterval.self, forKey: .period)
                         self = .becoming(period)
                     case "PROB":
@@ -306,7 +306,7 @@ public struct TAF: Codable {
                         try container.encode("TEMPO", forKey: .type)
                         try container.encode(period, forKey: .period)
                     case let .becoming(period):
-                        try container.encode("BCMG", forKey: .type)
+                        try container.encode("BECMG", forKey: .type)
                         try container.encode(period, forKey: .period)
                     case let .probability(probability, period):
                         try container.encode("PROB", forKey: .type)
