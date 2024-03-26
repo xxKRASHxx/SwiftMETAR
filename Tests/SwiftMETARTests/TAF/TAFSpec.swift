@@ -355,7 +355,8 @@ class TAFSpec: QuickSpec {
                 let components = DateComponents.this(day: 12, hour: 2)!
                 let date = zuluCal.date(from: components)!
                 expect(forecast.during(date)).to(equal(
-                    .init(raw: "PROB30 BECMG 1200/1204 3SM TSRA BKN030CB",
+                    .init(raw: "PROB30 BECMG 1200/1204 3SM TSRA BKN030CB", 
+                          rawFeatures: "3SM TSRA BKN030CB",
                           period: .from(.this(day: 12, hour: 2)!),
                           wind: .direction(140, speed: .knots(12)),
                           visibility: .equal(.statuteMiles(3)),
