@@ -49,19 +49,25 @@ func parseTAF(_ codedTAF: String, on referenceDate: Date? = nil) throws -> TAF {
             let altimeter = try parseTAFAltimeter(&parts)
             let rawTile = originParts[..<(originParts.count - parts.count)].joined(separator: " ")
             
-            groups.append(TAF.Group(raw: rawTile,
-                                    period: period,
-                                    wind: wind,
-                                    visibility: visibility,
-                                    weather: weather,
-                                    conditions: conditions,
-                                    windshear: windshear,
-                                    windshearConditions: windshearConditions,
-                                    icing: icingForecasts,
-                                    turbulence: turbForecasts,
-                                    altimeter: altimeter,
-                                    remarks: [],
-                                    remarksString: nil))
+            groups.append(TAF.Group(
+                raw: rawTile,
+                rawFeatures: rawTile
+                    .split(separator: " ")
+                    .dropFirst(period.rawValue.split(separator: " ").count)
+                    .joined(separator: " "),
+                period: period,
+                wind: wind,
+                visibility: visibility,
+                weather: weather,
+                conditions: conditions,
+                windshear: windshear,
+                windshearConditions: windshearConditions,
+                icing: icingForecasts,
+                turbulence: turbForecasts,
+                altimeter: altimeter,
+                remarks: [],
+                remarksString: nil))
+            
         } else if let temps = try parseTemperatures(&parts, date: refDateForRemarks) {
             if !pendingGroupRemarks.isEmpty {
                 guard !groups.isEmpty else { throw Error.badFormat }
@@ -82,14 +88,15 @@ func parseTAF(_ codedTAF: String, on referenceDate: Date? = nil) throws -> TAF {
         }
     }
     
-    return TAF(text: codedTAF,
-               issuance: issuance,
-               airportID: locationID,
-               originCalendarDate: date,
-               groups: groups,
-               temperatures: temperatures,
-               remarks: TAFRemarks,
-               remarksString: TAFRemarksString)
+    return TAF(
+        text: codedTAF,
+        issuance: issuance,
+        airportID: locationID,
+        originCalendarDate: date,
+        groups: groups,
+        temperatures: temperatures,
+        remarks: TAFRemarks,
+        remarksString: TAFRemarksString)
 }
 
 fileprivate func parseIssuance(_ parts: inout Array<String.SubSequence>) throws -> TAF.Issuance {

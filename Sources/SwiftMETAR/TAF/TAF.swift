@@ -75,6 +75,7 @@ public struct TAF: Codable {
         
         let components = zuluCal.dateComponents(in: zulu, from: date)
         var combinedGroup = Group(raw: "",
+                                  rawFeatures: "",
                                   period: .from(components),
                                   wind: nil,
                                   visibility: nil,
@@ -93,6 +94,7 @@ public struct TAF: Codable {
             switch group.period {
                 case .from(_): // reset all the fields
                     combinedGroup.raw = group.raw
+                    combinedGroup.rawFeatures = group.rawFeatures
                     combinedGroup.wind = group.wind
                     combinedGroup.visibility = group.visibility
                     combinedGroup.weather = group.weather
@@ -100,6 +102,7 @@ public struct TAF: Codable {
                     combinedGroup.windshear = group.windshear
                 default:
                     combinedGroup.raw = group.raw
+                    combinedGroup.rawFeatures = group.rawFeatures
                     if let wind = group.wind { combinedGroup.wind = wind }
                     if let visibility = group.visibility { combinedGroup.visibility = visibility }
                     if group.weather != nil && !group.weather!.isEmpty { combinedGroup.weather = group.weather }
@@ -166,8 +169,11 @@ public struct TAF: Codable {
     /// information need be supplied.
     public struct Group: Codable, Equatable {
         
-        /// The raw text of this particular TAF Group.
+        /// The raw text of this TAF Group.
         public var raw: String
+        
+        /// The raw text of this TAF group witout period (and probability).
+        public var rawFeatures: String
         
         /// The period during which these forecasts are valid.
         public let period: Period
