@@ -22,3 +22,18 @@ extension DateComponents {
         return calendar.dateComponents(in: timeZone, from: compDate)
     }
 }
+
+extension DateComponents {
+    var tafDayHour: String {
+        let startDayString = day.map { day in String(format: "%02d", day) } ?? "//"
+        let startHourString = hour.map { hour in String(format: "%02d", hour) } ?? "//"
+        return "\(startDayString)\(startHourString)"
+    }
+    
+    var tafDayHourMinute: String {
+        let startDayString = day.map { day in String(format: "%02d", day) } ?? "//"
+        let startHourString = hour.map { hour in String(format: "%02d", hour) } ?? "//"
+        let startMinuteString = minute.map { minute in String(format: "%02d", minute) } ?? "//"
+        return "\(startDayString)\(startHourString)\(startMinuteString)"
+    }
+}

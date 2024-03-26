@@ -252,18 +252,10 @@ public struct TAF: Codable {
                 case let .becoming(period):
                     return "BCMG \(period.rawValue)"
                 case let .from(components):
-                    guard let date = components.date else {
-                        assertionFailure("No date in components: \(components).")
-                        return ""
-                    }
-                    
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "ddhhmm"
-                    formatter.calendar = zuluCal
-                    return formatter.string(from: date)
+                    return "FM\(components.tafDayHourMinute)"
                     
                 case let .probability(probability, period: period):
-                    return "PROB \(probability) \(period.rawValue)"
+                    return "PROB\(probability) \(period.rawValue)"
                 case let .range(period):
                     return period.rawValue
                 case let .temporary(period):

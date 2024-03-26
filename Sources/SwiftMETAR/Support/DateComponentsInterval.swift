@@ -14,7 +14,7 @@ public struct DateComponentsInterval: Comparable, Hashable, Codable {
     public var duration: TimeInterval { dateInterval.duration }
     
     public var rawValue: String {
-        "\(start.tafRepresentation)/\(end.tafRepresentation)"
+        "\(start.tafDayHour)/\(end.tafDayHour)"
     }
     
     public init(start: DateComponents, end: DateComponents) {
@@ -66,13 +66,5 @@ public struct DateComponentsInterval: Comparable, Hashable, Codable {
     
     private enum CodingKeys: String, CodingKey {
         case start, end
-    }
-}
-
-private extension DateComponents {
-    var tafRepresentation: String {
-        let startDayString = day.map { day in String(format: "%02d", day) } ?? "//"
-        let startHourString = hour.map { hour in String(format: "%02d", hour) } ?? "//"
-        return "\(startDayString)\(startHourString)"
     }
 }
